@@ -1,0 +1,50 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Grup Ekle";
+}
+@model AmenitiesGroupViewModel
+
+<div class="flex flex-col gap-y-4">
+
+    <div class="container">
+        <div class="row">
+            <div class="card max-w-screen-sm w-full mx-auto">
+                <div class="card-body flex flex-col gap-y-4">
+                    <h5 class="card-title text-2xl font-bold tracking-tight">Grup Ekle</h5>
+                    <form asp-controller="Admin" asp-action="AddAmenitiesGroup" method="post" enctype="multipart/form-data">
+
+                        <div class="mb-4">
+                            <label asp-for="Name"
+                                   class="form-label"></label>
+                            <input asp-for="Name" class="form-control bg-neutral-50" placeholder="Grup adını girin" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description"
+                                   class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control bg-neutral-50" placeholder="Grup açıklamasını girin" ></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ImageUrl" class="form-label"></label>
+                            <input asp-for="ImageUrl" rows="3" class="form-control bg-neutral-50" placeholder="http://">
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-2">
+                            <input asp-for="IsActive" class="form-check-inline" />
+                            <label asp-for="IsActive"></label>
+                            <span class="text-danger" asp-validation-for="IsActive"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <input type="submit" class="btn btn-primary" value="Kaydet" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

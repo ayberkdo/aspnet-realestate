@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - aspnet_realestate</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/aspnet_realestate.styles.css" asp-append-version="true" />
+
+    <script src="~/js/tailwind.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+</head>
+<body class="inter">
+    <div class="flex flex-col min-h-screen">
+        <header class="fixed top-0 left-0 w-full z-30 px-4 bg-white">
+            <div class="px-2">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Sol Logo + Menü Butonu -->
+                    <div class="flex items-center space-x-4">
+                        <button id="sidebarToggle" class="text-neutral-800 focus:outline-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                            </svg>
+                        </button>
+                        <a asp-controller="User" asp-action="Index" class="text-2xl font-bold text-neutral-800">Logo</a>
+                    </div>
+
+                    <!-- Sağ Profil -->
+                    <div class="dropdown relative inline-block text-left group">
+                        <!-- Dropdown Button -->
+                        <button class="dropdown-toggle flex items-center gap-2 px-3 py-2 focus:outline-none transition-all duration-200" type="button" id="profileDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="text-gray-800 font-medium">@User.Identity.Name</span>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown-menu dropdown w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10" aria-labelledby="profileDropdownBtn">
+                            <!-- Kullanıcı Bilgisi -->
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <div class="flex items-center gap-3">
+                                    <div>
+                                        <p class="text-gray-800 font-semibold">@User.Identity.Name</p>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <span class="badge bg-info text-black mr-2">Yönetici</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-black mr-2">Üye</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Menü Öğeleri -->
+                            <ul class="py-1">
+                                <li>
+                                    <a class="flex items-center gap-2 px-4 py-2 hover:bg-red-50 hover:text-red-700 rounded transition"
+                                       asp-controller="Public" asp-action="Logout">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        Oturumu kapat
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            <aside id="sidebar"
+                   class="fixed top-16 inset-y-0 left-0 w-[260px] transform -translate-x-full transition-transform z-20">
+                <nav class="flex flex-col space-y-4 px-4">
+
+                    
+                </nav>
+            </aside>
+
+            <!-- Main İçerik -->
+            <main id="mainContent" class="flex-1 mt-[70px] ml-0 p-4 transition-transform rounded-tl-lg bg-neutral-50">
+                <div class="max-w-screen-xl w-full mx-auto">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Animasyonu geçici olarak kapat
+            $("#sidebar, #mainContent").removeClass("transition-transform");
+
+            // Sayfa yüklenince sidebar durumunu kontrol et
+            if (localStorage.getItem('sidebarOpen') === 'true') {
+                $("#sidebar").removeClass("-translate-x-full");
+                $("#mainContent").addClass("ml-[260px]");
+            } else {
+                $("#sidebar").addClass("-translate-x-full");
+                $("#mainContent").removeClass("ml-[260px]");
+            }
+
+            // Kısa süre sonra animasyonu tekrar aç
+            setTimeout(function () {
+                $("#sidebar").addClass("transition-transform");
+            }, 50); // 50ms yeterli, sayfa yüklenmesini bekliyoruz
+
+            // Toggle
+            $("#sidebarToggle").click(function () {
+                $("#sidebar").toggleClass("-translate-x-full");
+                $("#mainContent").toggleClass("ml-[260px]");
+
+                // Durumu kaydet
+                localStorage.setItem('sidebarOpen', !$("#sidebar").hasClass("-translate-x-full"));
+            });
+        });
+    </script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    @await Component.InvokeAsync("Notyf")
+</body>
+</html>

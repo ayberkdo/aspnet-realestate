@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Kategori Sil";
+}
+@model CategoryViewModel
+
+<div class="flex flex-col gap-y-4">
+
+    <div class="container">
+        <div class="row">
+            <div class="card max-w-screen-sm w-full mx-auto">
+                <div class="card-body flex flex-col gap-y-4">
+                    <h5 class="card-title text-2xl font-bold tracking-tight text-danger">@Model.Name kullanıcısını silmek istediğinizden emin misiniz?</h5>
+                    <form asp-controller="Admin" asp-action="DeleteCategory" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="submit" value="Sil" class="btn btn-danger btn-sm" />
+                        <a asp-action="Categories" class="btn btn-primary btn-sm">Vazgeç</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

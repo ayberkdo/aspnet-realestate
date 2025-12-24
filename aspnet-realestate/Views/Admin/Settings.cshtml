@@ -1,0 +1,90 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Site Ayarları";
+}
+@model SettingViewModel
+
+<div class="flex flex-col gap-y-6">
+    <div class="container">
+        <div class="row">
+            <div class="card max-w-screen-sm w-full mx-auto">
+                <div class="card-body flex flex-col gap-y-4">
+                    <h5 class="card-title text-2xl font-bold tracking-tight">Site Ayarları</h5>
+
+                    <form asp-controller="Admin" asp-action="Settings" method="post">
+                        <div class="mb-4">
+                            <label asp-for="SiteTitle" class="form-label"></label>
+                            <input asp-for="SiteTitle" class="form-control bg-neutral-50" />
+                            <span asp-validation-for="SiteTitle" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="SiteDescription" class="form-label"></label>
+                            <textarea asp-for="SiteDescription" class="form-control bg-neutral-50"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="SiteKeywords" class="form-label"></label>
+                            <input asp-for="SiteKeywords" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="LogoUrl" class="form-label"></label>
+                            <input asp-for="LogoUrl" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="FaviconUrl" class="form-label"></label>
+                            <input asp-for="FaviconUrl" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="SiteEmail" class="form-label"></label>
+                            <input asp-for="SiteEmail" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="SitePhoneNumber" class="form-label"></label>
+                            <input asp-for="SitePhoneNumber" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="SiteAddress" class="form-label"></label>
+                            <textarea asp-for="SiteAddress" class="form-control bg-neutral-50"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="MapEmbedCode" class="form-label"></label>
+                            <textarea asp-for="MapEmbedCode" class="form-control bg-neutral-50"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="FacebookUrl" class="form-label"></label>
+                            <input asp-for="FacebookUrl" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="InstagramUrl" class="form-label"></label>
+                            <input asp-for="InstagramUrl" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="TwitterUrl" class="form-label"></label>
+                            <input asp-for="TwitterUrl" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="YoutubeUrl" class="form-label"></label>
+                            <input asp-for="YoutubeUrl" class="form-control bg-neutral-50" />
+                        </div>
+
+                        <div class="mb-4">
+                            <input type="submit" value="Kaydet" class="btn btn-primary" />
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

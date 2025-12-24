@@ -1,0 +1,51 @@
+﻿@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Giriş Yap";
+}
+@model LoginViewModel
+
+<div class="w-100" style="max-width: 400px;">
+    <!-- Form Header -->
+    <div class="text-center mb-4">
+        <h1 class="h3 fw-bold mb-2">Giriş Yap</h1>
+        <p class="text-muted">Hesabınıza giriş yapmak için bilgilerinizi girin</p>
+    </div>
+
+    <!-- Form -->
+    <form asp-controller="Public" asp-action="Login" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Username"
+                   class="form-label"></label>
+            <input asp-for="Username" class="form-control bg-neutral-50" placeholder="kullanıcı adı" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password"
+                   class="form-label"></label>
+            <input asp-for="Password" class="form-control bg-neutral-50" placeholder="***" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <div class="custom-control custom-checkbox small">
+                <input type="checkbox" class="custom-control-input" asp-for="RememberMe">
+                <label class="custom-control-label" asp-for="RememberMe"></label>
+            </div>
+        </div>
+
+        <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary btn-lg">Giriş Yap</button>
+        </div>
+
+        <div class="text-center">
+            <p>Hesabınız mı yok, hemen bir <a asp-asp-controller="Public" asp-action="Register" class="text-blue-500 text-decoration-none">hesap oluştur</a>.</p>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

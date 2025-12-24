@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Anasayfa";
+}
+
+<!-- Hero -->
+<section class="relative w-full mt-8 rounded-3xl overflow-hidden shadow-2xl">
+    <!-- Background Image -->
+    <div class="absolute inset-0 bg-cover bg-center"
+         style="background-image: url('https://i.pinimg.com/1200x/9d/fc/61/9dfc61258cd6884a5006a8381f2554df.jpg');">
+    </div>
+
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center text-white px-6 py-24 sm:py-32">
+        <h1 class="text-3xl sm:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-lg">
+            Hayalinizdeki Evi Bulun
+        </h1>
+        <p class="text-base sm:text-lg text-gray-200 mb-10 max-w-2xl mx-auto">
+            Evinizi, ofisinizi ya da yatırım fırsatınızı birkaç adımda kolayca keşfedin.
+        </p>
+
+        <!-- Search Form -->
+        <form class="bg-white/10 backdrop-blur-md rounded-xl p-6 max-w-4xl mx-auto flex flex-col sm:flex-row gap-4 items-center shadow-lg">
+            <!-- Mülk Türü -->
+            <select class="w-full sm:w-1/4 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <option>Mülk Türü</option>
+                <option>Daire</option>
+                <option>Villa</option>
+                <option>Arsa</option>
+                <option>Ofis</option>
+            </select>
+
+            <!-- Lokasyon -->
+            <input type="text" placeholder="Lokasyon Seç"
+                   class="w-full sm:w-1/4 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+
+            <!-- Fiyat Min -->
+            <input type="number" placeholder="Min Fiyat"
+                   class="w-full sm:w-1/5 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+
+            <!-- Fiyat Max -->
+            <input type="number" placeholder="Max Fiyat"
+                   class="w-full sm:w-1/5 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+
+            <!-- Search Button -->
+            <button type="submit"
+                    class="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition shadow-md">
+                Ara
+            </button>
+        </form>
+    </div>
+</section>

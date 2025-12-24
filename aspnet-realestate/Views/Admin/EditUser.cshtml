@@ -1,0 +1,78 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Kullanıcı Ekle";
+}
+@model UserViewModel
+
+<div class="flex flex-col gap-y-4">
+
+    <div class="container">
+        <div class="row">
+            <div class="card max-w-screen-sm w-full mx-auto">
+                <div class="card-body flex flex-col gap-y-4">
+                    <h5 class="card-title text-2xl font-bold tracking-tight">Kullanıcı Ekle</h5>
+                    <form asp-controller="Admin" asp-action="EditUser" method="post" enctype="multipart/form-data">
+
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-4">
+                            <label asp-for="FullName"
+                                   class="form-label"></label>
+                            <input asp-for="FullName" class="form-control bg-neutral-50" placeholder="Adınızı ve soyadınızı girin" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="UserName" class="form-label"></label>
+                            <input asp-for="UserName" class="form-control bg-neutral-50" placeholder="Kullanıcı adınızı girin" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control bg-neutral-50" type="tel" placeholder="Telefon numaranızı girin" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control bg-neutral-50" type="email" placeholder="Email adresinizi girin" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Role" class="form-label"></label>
+                            <select asp-for="Role" class="form-select bg-neutral-50" required>
+                                <option value="user">Kullanıcı</option>
+                                <option value="admin">Yönetici</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Bio" class="form-label"></label>
+                            <textarea asp-for="Bio" rows="3" class="form-control bg-neutral-50" placeholder="Kendiniz hakkında kısa bir bilgi yazın"></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ProfileImageUrl" class="form-label"></label>
+                            <input asp-for="ProfileImageUrl" rows="3" class="form-control bg-neutral-50" placeholder="http://">
+                            <span asp-validation-for="ProfileImageUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-2">
+                            <input asp-for="IsActive" class="form-check-inline" />
+                            <label asp-for="IsActive"></label>
+                            <span class="text-danger" asp-validation-for="IsActive"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <input type="submit" class="btn btn-primary" value="Kaydet" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

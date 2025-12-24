@@ -1,0 +1,142 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Olanaklar";
+}
+@model List<AmenitiesViewModel>
+
+<div class="flex flex-col gap-y-4">
+
+    <!--Başlık -->
+    <div class="container">
+        <div class="row">
+            <h1 class="text-2xl font-bold tracking-tight">Olanaklar</h1>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="container">
+
+        <!-- Bilgilendirici Yazı -->
+        <div class="row">
+            @if (Model.Count > 0 && string.IsNullOrEmpty(ViewBag.Search))
+            {
+                <div class="col-12 mb-2">
+                    <div class="alert alert-info py-2 px-3">
+                        Toplam “<strong>@Model.Count</strong>” olanak kayıtlı.
+                    </div>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(ViewBag.Search))
+            {
+                <div class="col-12 mb-2">
+                    <div class="alert alert-info py-2 px-3">
+                        “<strong>@ViewBag.Search</strong>” için arama sonuçları görüntüleniyor.
+                        <a asp-controller="Admin" asp-action="AddAmenities" class="ms-2 small text-decoration-underline">Tüm olanakları göster</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Arama + Yeni Olanak -->
+        <div class="row mb-3 g-3">
+
+            <!-- Arama Kutusu -->
+            <div class="col-md-4 d-flex">
+                <form asp-controller="Admin" asp-action="Amenities" method="get" class="w-100">
+                    <div class="input-group border rounded-lg w-100">
+                        <input type="text"
+                               name="search"
+                               value="@ViewBag.Search"
+                               class="form-control border-0 rounded-start-lg"
+                               placeholder="Olanak ara..." />
+                        <button type="submit" class="btn btn-primary px-3 rounded-end-lg">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Yeni Olanak Ekle Butonu -->
+            <div class="col-md-8 d-flex justify-content-end">
+                <a asp-controller="Admin" asp-action="AddAmenities"
+                   class="btn btn-success shadow-sm d-flex align-items-center gap-2 rounded-lg">
+                    <i class="bi bi-plus-lg fs-6"></i> Yeni Olanak Ekle
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Olanak Tablosu -->
+        <div class="card border border-neutral-500">
+            <div class="table-responsive">
+                @if (Model != null && Model.Count > 0)
+                {
+                    <table class="table align-middle mb-0 w-full">
+                        <thead class="bg-neutral-100 text-secondary fw-semibold border-bottom">
+                            <tr>
+                                <th>ID</th>
+                                <th>Olanak Adı</th>
+                                <th>Description</th>
+                                <th>Grup</th>
+                                <th>Durum</th>
+                                <th>Oluşturulma Tarihi</th>
+                                <th class="text-end">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="hover:bg-neutral-50 transition">
+                                    <td>@item.Id</td>
+                                    <td>@item.Name</td>
+                                    <td>@item.Description</td>
+                                    <td>@item.GroupName</td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="badge bg-success text-white">Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger text-white">Pasif</span>
+                                        }
+                                    </td>
+                                    <td>@item.Created.ToString("dd.MM.yyyy")</td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a asp-action="EditAmenities" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning rounded-pill d-flex align-items-center gap-1">
+                                                <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Düzenle</span>
+                                            </a>
+                                            <a asp-action="DeleteAmenities" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-pill d-flex align-items-center gap-1">
+                                                <i class="bi bi-trash"></i> <span class="d-none d-md-inline">Sil</span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="d-flex flex-column justify-content-center align-items-center py-5 text-center max-w-[270px] mx-auto">
+                        @if (!string.IsNullOrEmpty(ViewData["Search"]?.ToString()))
+                        {
+                            <h5 class="text-muted mb-3">Aradığınız kriterlere uygun olanak bulunamadı. İstersen olanak ekleyerek devam et.</h5>
+                        }
+                        else
+                        {
+                            <h5 class="text-muted mb-3">Henüz bir olanak eklenmemiş. İlk olanak ekleyerek devam et.</h5>
+                        }
+                        <a asp-controller="Admin" asp-action="AddAmenities"
+                           class="btn btn-success shadow-sm d-flex align-items-center gap-2 rounded-lg px-4 py-2">
+                            <i class="bi bi-plus-lg fs-6"></i>
+                            <span>Yeni Olanak Ekle</span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>

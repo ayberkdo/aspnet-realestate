@@ -1,0 +1,548 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Mesajlar Yönetimi";
+}
+
+<div class="flex flex-col gap-y-4">
+
+    <!--Başlık -->
+    <div class="container">
+        <div class="row">
+            <h1 class="text-2xl font-bold tracking-tight">Mesajlar</h1>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="container">
+
+        <!-- Arama -->
+        <div class="row mb-3 g-3">
+            <div class="col-md-4 d-flex">
+                <div class="input-group border rounded-lg w-100">
+                    <input id="searchInput" type="text" class="form-control border-0 rounded-start-lg" placeholder="İlan adı veya kodu ara...">
+                    <button id="searchBtn" class="btn btn-primary px-3 rounded-y-lg">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-8 justify-content-end">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Mesaj Ekle
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Mesaj Ekle</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label>İlan Kodu</label>
+                                    <input type="text" class="form-control" id="txtCode" />
+                                    <input type="hidden" id="txtId" />
+                                </div>
+                                <div class="mb-3">
+                                    <label>Mesaj</label>
+                                    <textarea rows="3" class="form-control" id="txtMessage"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="" role="alert" id="alert"></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                                <button type="button" class="btn btn-primary" id="AddMessage">Ekle</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="historyModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Mesaj Geçmişi</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <div id="messageHistoryList" class="list-group list-group-flush">
+                                </div>
+
+                                <div id="historyLoading" class="text-center p-4" style="display:none;">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Yükleniyor...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Tablo Kartı -->
+        <div class="card border border-neutral-500">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 w-full" id="messagesTable">
+                    <thead class="bg-neutral-100 text-secondary fw-semibold border-bottom">
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Son Mesaj</th>
+                            <th>Tarih</th>
+                            <th>Toplam Mesaj</th>
+                            <th class="text-end">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        // --- GLOBAL DEĞİŞKENLER ---
+        let isTableDirty = false;
+
+        // --- SAYFA YÜKLENDİĞİNDE ---
+        $(document).ready(function () {
+            $("#alert").hide();
+            $("#txtId").val(0);
+
+            fetchMessages("");
+
+            $('#historyModal').on('hidden.bs.modal', function () {
+                if (isTableDirty) {
+                    const currentSearch = $("#searchInput").val();
+                    fetchMessages(currentSearch);
+                    isTableDirty = false;
+                }
+            });
+        });
+
+        // -----------------------------------------------------------------------
+        // 1. MESAJ EKLEME
+        // -----------------------------------------------------------------------
+        $("#AddMessage").click(function () {
+            const data = {
+                Id: $("#txtId").val(),
+                Slug: $("#txtCode").val(),
+                Content: $("#txtMessage").val()
+            };
+
+            $.ajax({
+                url: "message/add",
+                type: "POST",
+                data: data,
+                success: function (d) {
+                    if (d.status) {
+                        $("#alert").show().removeClass().addClass("alert alert-success").html(d.message).fadeOut(4000);
+                        $("#exampleModal").modal("hide");
+                        $("#txtMessage").val(""); $("#txtCode").val(""); $("#txtId").val(0);
+                        fetchMessages("");
+                    } else {
+                        $("#alert").show().removeClass().addClass("alert alert-warning").html(d.message).fadeOut(4000);
+                    }
+                },
+                error: function () {
+                    $("#alert").show().removeClass().addClass("alert alert-danger").html("İşlem başarısız").fadeOut(3000);
+                }
+            })
+        });
+
+        // -----------------------------------------------------------------------
+        // 2. ANA TABLOYU LİSTELEME
+        // -----------------------------------------------------------------------
+        function fetchMessages(search) {
+            const searchValue = search ? search.trim() : "";
+            let url = `/admin/property/messages/list`;
+            if (searchValue !== "") url += `?search=${encodeURIComponent(searchValue)}`;
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (res) {
+                    const tbody = $("#messagesTable tbody");
+                    tbody.empty();
+
+                    if (!res.success || res.data.length == 0) {
+                        const message = res.message || "Mesajı olan ilan bulunamadı."
+                        tbody.append(`<tr><td colspan="6" class="text-center text-muted py-4">${message}</td></tr>`);
+                        return;
+                    }
+
+                    res.data.forEach(item => {
+                        const lastMessage = item.lastMessage ? item.lastMessage.content : '-';
+                        const lastMessageDate = item.lastMessage ? new Date(item.lastMessage.created).toLocaleString('tr-TR') : '-';
+
+                        tbody.append(`
+                            <tr>
+                                <td>${item.id}</td>
+                                <td>
+                                    <div class="fw-bold">${item.title}</div>
+                                    <div class="small text-muted">${item.slug}</div>
+                                </td>
+                                <td class="text-truncate" style="max-width: 200px;">${lastMessage}</td>
+                                <td>${lastMessageDate}</td>
+                                <td><span class="badge bg-secondary rounded-pill">${item.totalMessages}</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary btn-view-messages" data-id="${item.id}" data-title="${item.title}">
+                                        <i class="bi bi-chat-text"></i> Görüntüle
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function () { console.error("Tablo yüklenirken hata oluştu."); }
+            });
+        }
+
+        $("#searchBtn").click(() => fetchMessages($("#searchInput").val()));
+        $("#searchInput").keypress((e) => { if (e.which === 13) fetchMessages($(e.target).val()); });
+
+
+        // -----------------------------------------------------------------------
+        // 3. MESAJ DETAY (MODAL AÇMA)
+        // -----------------------------------------------------------------------
+        $(document).on('click', '.btn-view-messages', function () {
+            isTableDirty = false;
+            const propertyId = $(this).data('id');
+            const title = $(this).data('title');
+
+            $("#historyModal .modal-title").text(`Mesaj Geçmişi: ${title}`);
+            $("#historyModal").data("pid", propertyId);
+
+            const historyModal = new bootstrap.Modal(document.getElementById('historyModal'));
+            historyModal.show();
+
+            refreshMessageHistory(propertyId);
+        });
+
+        // -----------------------------------------------------------------------
+        // *** YENİ: AĞAÇ YAPISI (TREE) OLUŞTURMA VE LİSTELEME ***
+        // -----------------------------------------------------------------------
+        function refreshMessageHistory(propertyId) {
+            const $list = $("#messageHistoryList");
+            $list.empty();
+            $("#historyLoading").show();
+
+            $.ajax({
+                url: `/admin/property/get-messages/${propertyId}`,
+                type: 'GET',
+                success: function (res) {
+                    $("#historyLoading").hide();
+
+                    if (res.success && res.data && res.data.length > 0) {
+                        // 1. Veriyi Ağaç Yapısına Dönüştür
+                        const messageTree = buildMessageTree(res.data);
+
+                        // 2. Ağacı Ekrana Bas (Recursive)
+                        messageTree.forEach(rootMsg => {
+                            $list.append(renderMessageItem(rootMsg, 0)); // 0 = Başlangıç Seviyesi
+                        });
+
+                    } else {
+                        $list.html('<div class="p-4 text-center text-muted">Bu ilana ait mesaj bulunamadı.</div>');
+                    }
+                },
+                error: function () {
+                    $("#historyLoading").hide();
+                    $list.html('<div class="alert alert-danger m-3">Veriler yüklenemedi.</div>');
+                }
+            });
+        }
+
+        // Yardımcı: Düz listeyi Parent-Child ilişkisine göre ağaca çevirir
+                    function buildMessageTree(messages) {
+            const map = {};
+            const roots = [];
+
+            // 1. Map ve ParentID oluşturma
+            messages.forEach(msg => {
+                msg.children = [];
+                msg.id = parseInt(msg.id);
+                let pId = msg.RepliedMessageId || msg.repliedMessageId;
+                msg.parentId = pId ? parseInt(pId) : null;
+                map[msg.id] = msg;
+            });
+
+            // 2. İlişkileri kur (Ağaç Yapısı)
+            messages.forEach(msg => {
+                // Eğer bir ebeveyni varsa ve haritada mevcutsa (bu normal bir çocuktur)
+                if (msg.parentId && map[msg.parentId]) {
+                    map[msg.parentId].children.push(msg);
+                } else {
+                    // Ebeveyni yoksa (ROOT) veya ebeveyni silinmişse (YETİM),
+                    // onu kökler listesine ekle.
+                    // ÖNEMLİ NOT: Yetimler, silinen mesajların altına yerleştirilemez,
+                    // sadece kendi başlarına listelenirler.
+                    // Sizin istediğiniz görseli elde etmek için, Yetimleri Root'a atmak ZORUNLU.
+                    roots.push(msg);
+                }
+            });
+
+            // Ana Mesajlar: En YENİ en üstte
+            roots.sort((a, b) => b.id - a.id);
+
+            // Cevaplar: En ESKİ en üstte (kronolojik okuma)
+            const sortChildren = (list) => {
+                list.sort((a, b) => a.id - b.id);
+                list.forEach(item => sortChildren(item.children));
+            };
+            sortChildren(roots);
+
+            return roots;
+        }
+
+                // --- YENİ VE BASİTLEŞTİRİLMİŞ renderMessageItem FONKSİYONU ---
+        function renderMessageItem(msg, level) {
+            const isDeleted = msg.Deleted || msg.deleted;
+            let messageContent = msg.content;
+            let userName = msg.userFullName;
+            let actionsHtml = '';
+            let statusTag = ''; // Başlık yanındaki etiket
+            let userDisplayClass = 'text-dark';
+
+            // Mesaj silinmişse görsel değişiklikleri yap
+            if (isDeleted) {
+                // İstenen Etiket: Sadece bir kez, başlığın yanında göster
+                statusTag = '<span class="text-danger fw-normal ms-2 fst-italic">[SİLİNMİŞ]</span>';
+                userDisplayClass = 'text-muted'; // Başlığı gri yap
+
+                // ADMIN GÖRÜNÜMÜ: İçeriği maskeleme, orijinal içeriği göster.
+                // Gerekirse içeriğin yanına bir (Silinmiş) notu eklenebilir.
+                // messageContent = msg.content + ' (Silinmiş Kayıt)'; // İçeriği olduğu gibi bırak, not ekle
+            } else {
+                // Silinmemişse, orijinal butonları göster
+                actionsHtml = `
+                    <div class="btn-group btn-group-sm ms-3 action-buttons" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-reply-msg" data-msg-id="${msg.id}" title="Cevapla">
+                            <i class="bi bi-reply"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-warning btn-edit-msg" data-msg-id="${msg.id}" title="Düzenle">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-delete-msg" data-msg-id="${msg.id}" title="Sil">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Görsel stiller
+            const indentStyle = level > 0
+                ? `margin-left: ${level * 2}rem; border-left: 3px solid #dee2e6;`
+                : '';
+            const bgColor = isDeleted ? 'bg-light' : 'bg-white';
+            const icon = level > 0 ? '-> ' : '';
+
+            let html = `
+                <div class="list-group-item d-flex justify-content-between align-items-start py-3 mb-2 shadow-sm rounded ${bgColor}"
+                     style="${indentStyle}" id="msg-row-${msg.id}">
+
+                    <div class="ms-2 me-auto w-100">
+                        <div class="fw-bold ${userDisplayClass} mb-1">
+                            ${icon} ${userName}
+                            <span class="text-muted fw-normal small ms-2" style="font-size:0.8rem">(${msg.created})</span>
+                            ${statusTag} </div>
+                        <p class="mb-1 text-break msg-content ${isDeleted ? 'fst-italic' : ''}">${messageContent}</p>
+                    </div>
+
+                    ${actionsHtml}
+                </div>
+            `;
+
+            // RECURSIVE ÇAĞRI: Çocukları alt alta ekler
+            if (msg.children && msg.children.length > 0) {
+                msg.children.forEach(child => {
+                    html += renderMessageItem(child, level + 1);
+                });
+            }
+
+            return html;
+        }
+
+
+        // -----------------------------------------------------------------------
+        // 4. CEVAPLAMA (REPLY)
+        // -----------------------------------------------------------------------
+        $(document).on('click', '.btn-reply-msg', function () {
+            const btn = $(this);
+            const msgId = btn.data('msg-id');
+            const listItem = btn.closest('.list-group-item');
+
+            if (listItem.find('.reply-box-area').length > 0) {
+                listItem.find('textarea').focus();
+                return;
+            }
+
+            const replyHtml = `
+                <div class="reply-box-area mt-2 p-3 bg-white border rounded shadow-sm">
+                    <div class="fw-bold small text-primary mb-2"><i class="bi bi-reply-fill"></i> Yanıtınız:</div>
+                    <textarea class="form-control mb-2" rows="3" placeholder="Yanıt yaz..."></textarea>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary btn-cancel-reply">Vazgeç</button>
+                        <button type="button" class="btn btn-sm btn-primary btn-send-reply" data-replied-id="${msgId}">Gönder</button>
+                    </div>
+                </div>`;
+
+            // Formu mesajın hemen altına (içine değil, altına) ekle
+            // Ama recursive yapıda list-item'lar alt alta dizili olduğu için,
+            // Bu item'ın hemen sonrasına eklemek görsel olarak en doğrusudur.
+            listItem.append(replyHtml);
+            listItem.find('textarea').focus();
+        });
+
+        $(document).on('click', '.btn-cancel-reply', function () {
+            $(this).closest('.reply-box-area').remove();
+        });
+
+        $(document).on('click', '.btn-send-reply', function () {
+            const btn = $(this);
+            const repliedId = btn.data('replied-id');
+            const replyBox = btn.closest('.reply-box-area');
+            const content = replyBox.find('textarea').val().trim();
+            const propertyId = $("#historyModal").data("pid");
+
+            if (content === "") { alert("Boş olamaz."); return; }
+
+            btn.prop('disabled', true).text('...');
+
+            $.ajax({
+                url: '/admin/property/message/reply',
+                type: 'POST',
+                data: { propertyId, repliedMessageId: repliedId, content },
+                success: function (res) {
+                    if (res.success) {
+                        isTableDirty = true;
+                        refreshMessageHistory(propertyId); // Ağacı yeniden çiz
+                    } else {
+                        alert(res.message);
+                        btn.prop('disabled', false).text('Gönder');
+                    }
+                },
+                error: function () { alert("Hata"); btn.prop('disabled', false).text('Gönder'); }
+            });
+        });
+
+        // -----------------------------------------------------------------------
+        // 5. SİLME (DELETE)
+        // -----------------------------------------------------------------------
+        $(document).on('click', '.btn-delete-msg', function () {
+            const btn = $(this);
+            const listItem = btn.closest('.list-group-item');
+            if (listItem.find('.delete-confirm-alert').length > 0) return;
+
+            listItem.find('.action-buttons').hide();
+            listItem.append(`
+                <div class="alert alert-danger d-flex align-items-center mt-2 delete-confirm-alert p-2">
+                    <div class="flex-grow-1 small">Silinsin mi?</div>
+                    <button class="btn btn-sm btn-outline-secondary btn-cancel-delete me-1">İptal</button>
+                    <button class="btn btn-sm btn-danger btn-confirm-delete" data-msg-id="${btn.data('msg-id')}">Evet</button>
+                </div>
+            `);
+        });
+
+        $(document).on('click', '.btn-cancel-delete', function () {
+            const alert = $(this).closest('.delete-confirm-alert');
+            const item = alert.closest('.list-group-item');
+            alert.remove();
+            item.find('.action-buttons').fadeIn();
+        });
+
+        $(document).on('click', '.btn-confirm-delete', function () {
+            const btn = $(this);
+            const listItem = btn.closest('.list-group-item');
+            const pid = $("#historyModal").data("pid"); // Property ID
+
+            btn.prop('disabled', true).text('...');
+
+            $.ajax({
+                url: `/admin/property/message/delete/${btn.data('msg-id')}`,
+                type: 'POST',
+                success: function (res) {
+                    if (res.success) {
+                        // SOFT DELETE BAŞARILI: Ana tabloyu kirlet ve listeyi yenile
+                        isTableDirty = true;
+                        refreshMessageHistory(pid);
+                    } else {
+                        alert("Silme işlemi başarısız: " + res.message);
+                        // Butonu eski haline getir
+                        btn.prop('disabled', false).text('Evet');
+                    }
+                },
+                error: function () {
+                    alert("Hata oluştu.");
+                    btn.prop('disabled', false).text('Evet');
+                }
+            });
+        });
+
+        // -----------------------------------------------------------------------
+        // 6. DÜZENLEME (EDIT)
+        // -----------------------------------------------------------------------
+        $(document).on('click', '.btn-edit-msg', function () {
+            const btn = $(this);
+            const item = btn.closest('.list-group-item');
+            const p = item.find('p.msg-content');
+
+            item.find('.action-buttons').hide();
+
+            p.hide().after(`
+                <div class="edit-mode-area mt-2">
+                    <textarea class="form-control mb-2" rows="2">${p.text()}</textarea>
+                    <div class="text-end">
+                        <button class="btn btn-sm btn-secondary btn-cancel-edit">Vazgeç</button>
+                        <button class="btn btn-sm btn-success btn-save-edit" data-msg-id="${btn.data('msg-id')}">Kaydet</button>
+                    </div>
+                </div>
+            `);
+        });
+
+        $(document).on('click', '.btn-cancel-edit', function () {
+            const area = $(this).closest('.edit-mode-area');
+            const item = area.closest('.list-group-item');
+            area.remove();
+            item.find('p.msg-content').show();
+            item.find('.action-buttons').fadeIn();
+        });
+
+        $(document).on('click', '.btn-save-edit', function () {
+            const btn = $(this);
+            const area = btn.closest('.edit-mode-area');
+            const item = area.closest('.list-group-item');
+            const val = area.find('textarea').val().trim();
+
+            if(!val) return;
+
+            $.ajax({
+                url: '/admin/property/message/update',
+                type: 'POST',
+                data: { id: btn.data('msg-id'), content: val },
+                success: function (res) {
+                    if (res.success) {
+                        isTableDirty = true;
+                        item.find('p.msg-content').text(val).show();
+                        area.remove();
+                        item.find('.action-buttons').fadeIn();
+                        item.addClass('bg-success-subtle');
+                        setTimeout(() => item.removeClass('bg-success-subtle'), 1000);
+                    } else { alert(res.message); }
+                }
+            });
+        });
+    </script>
+}

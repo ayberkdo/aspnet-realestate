@@ -1,0 +1,75 @@
+﻿@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Kayıt ol";
+}
+@model RegisterViewModel
+
+<div class="w-100" style="max-width: 400px;">
+    <!-- Form Header -->
+    <div class="text-center mb-4">
+        <h1 class="h3 fw-bold mb-2">Hesap Oluştur</h1>
+        <p class="text-muted">Yeni hesabınızı oluşturmak için bilgilerinizi girin</p>
+    </div>
+
+    <!-- Register Form -->
+    <form asp-controller="Public" asp-action="Register" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <!-- Ad Soyad -->
+        <div class="mb-3">
+            <label asp-for="FullName"
+                   class="form-label"></label>
+            <input asp-for="FullName" class="form-control bg-neutral-50" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <!-- Kullanıcı adı -->
+        <div class="mb-3">
+            <label asp-for="Username"
+                   class="form-label"></label>
+            <input asp-for="Username" class="form-control bg-neutral-50" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+
+        <!-- Mail -->
+        <div class="mb-3">
+            <label asp-for="Email"
+                   class="form-label"></label>
+            <input asp-for="Email" class="form-control bg-neutral-50" placeholder="example@gmail.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <!-- Telefon -->
+        <div class="mb-3">
+            <label asp-for="PhoneNumber"
+                   class="form-label"></label>
+            <input asp-for="PhoneNumber" class="form-control bg-neutral-50" placeholder="05XX XXX XX XX" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <!-- Şifre -->
+        <div class="mb-3">
+            <label asp-for="Password"
+                   class="form-label"></label>
+            <input asp-for="Password" class="form-control bg-neutral-50" placeholder="***" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <!-- Şifre Tekrar -->
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword"
+                   class="form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control bg-neutral-50" placeholder="***" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <!-- Kayıt Butonu -->
+        <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary btn-lg">Hesap Oluştur</button>
+        </div>
+
+        <!-- Login Link -->
+        <div class="text-center">
+            <p>Zaten bir hesabınız var mı? <a asp-asp-controller="Public" asp-action="Login" class="text-blue-500 text-decoration-none">Giriş Yap</a></p>
+        </div>
+    </form>
+</div>
