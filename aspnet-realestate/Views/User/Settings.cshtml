@@ -1,6 +1,59 @@
-﻿@{
+﻿@model UserProfileViewModel
+
+@{
+    ViewData["Title"] = "Profil Ayarları";
     Layout = "_UserLayout";
-    ViewData["Title"] = "Settings";
 }
 
-<div>Settings</div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h5 class="mb-0 fw-bold text-dark">Profil Bilgilerimi Düzenle</h5>
+                </div>
+                <div class="card-body p-4 pt-0">
+                    <form asp-action="Settings" method="post">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label text-muted small fw-bold">Kullanıcı Adı</label>
+                                <input asp-for="Username" class="form-control bg-light border-0" readonly />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="FullName" class="form-label small fw-bold">Ad Soyad</label>
+                                <input asp-for="FullName" class="form-control" />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label small fw-bold">Telefon</label>
+                                <input asp-for="PhoneNumber" class="form-control" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Email" class="form-label small fw-bold">E-Posta</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Bio" class="form-label small fw-bold">Biyografi</label>
+                                <textarea asp-for="Bio" class="form-control" rows="4" placeholder="Kısaca kendinizden bahsedin..."></textarea>
+                                <span asp-validation-for="Bio" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-primary px-5 shadow-sm">
+                                Güncelle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

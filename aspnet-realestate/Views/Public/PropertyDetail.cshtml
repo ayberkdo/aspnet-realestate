@@ -1,7 +1,35 @@
-﻿@{
-    ViewData["Title"] = "ilan detay";
+﻿@model PropertyViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.Title;
+
+    // --- 🖼️ RESİM SEÇİM MANTIĞI ---
+    string finalImage = "/uploads/properties/default-house.jpg";
+    if (!string.IsNullOrEmpty(Model.CoverImage)) { finalImage = Model.CoverImage; }
+    else if (!string.IsNullOrEmpty(Model.CoverImageUrl)) { finalImage = Model.CoverImageUrl; }
+    else if (Model.Images != null && Model.Images.Count > 0) { finalImage = Model.Images.First().ImageUrl ?? finalImage; }
 }
 
-<div class="text-center">
-    <h1 class="display-4">ilan detay</h1>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="mb-4 text-center">
+                <h1 class="fw-bold display-4 text-dark">@Model.Title</h1>
+            </div>
+
+            <div class="rounded-4 overflow-hidden shadow-lg">
+                <img src="@finalImage" class="img-fluid w-100 object-fit-cover" style="max-height: 600px;" alt="@Model.Title">
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    .rounded-4 {
+        border-radius: 1.5rem !important;
+    }
+</style>

@@ -1,7 +1,119 @@
-﻿@{
-    ViewData["Title"] = "İlanlar";
+﻿@model List<PropertyViewModel>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Tüm İlanlar";
 }
 
-<div class="text-center">
-    <h1 class="display-4">İlanlar</h1>
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold display-5 mb-2">Emlak Listesi</h2>
+            <p class="text-muted fs-5">Hayalinizdeki emlağı geniş portföyümüzde keşfedin.</p>
+            <div class="mx-auto bg-primary rounded-pill" style="width: 60px; height: 4px;"></div>
+        </div>
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="card border-0 rounded-4 p-5 d-inline-block shadow-sm bg-light">
+                <i class="bi bi-search display-1 text-secondary opacity-25 mb-3"></i>
+                <h3 class="fw-bold text-secondary">Herhangi bir ilan bulunamadı</h3>
+                <p class="text-muted mb-4">Aradığınız kriterlere uygun kayıt mevcut değil.</p>
+                <a href="/" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
+                    Anasayfaya Dön
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var item in Model)
+            {
+                // --- 🖼️ RESİM SEÇİM MANTIĞI ---
+                // Öncelik: CoverImage -> CoverImageUrl -> İlk Galeri Resmi -> Default Görsel
+                string finalImage = "/uploads/properties/default-house.jpg";
+
+                if (!string.IsNullOrEmpty(item.CoverImage)) { finalImage = item.CoverImage; }
+                else if (!string.IsNullOrEmpty(item.CoverImageUrl)) { finalImage = item.CoverImageUrl; }
+                else if (item.Images != null && item.Images.Any(i => !string.IsNullOrEmpty(i.ImageUrl)))
+                {
+                    finalImage = item.Images.First(i => !string.IsNullOrEmpty(i.ImageUrl)).ImageUrl;
+                }
+
+                // --- 🏷️ ETİKET RENGİ VE METNİ ---
+                bool isSale = item.Type?.ToLower() == "sale" || item.Type == "Satılık";
+                string badgeColor = isSale ? "bg-primary" : "bg-success";
+                string badgeText = isSale ? "Satılık" : "Kiralık";
+
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm property-card overflow-hidden rounded-4">
+
+                        <a asp-controller="Public" asp-action="PropertyDetail" asp-route-slug="@item.Slug" class="text-decoration-none text-dark h-100 d-flex flex-column">
+
+                            <div class="position-relative overflow-hidden">
+                                <img src="@finalImage" class="card-img-top object-fit-cover" alt="@item.Title" style="height: 260px; width: 100%;">
+
+                                <div class="position-absolute top-0 start-0 m-3">
+                                    <span class="badge @badgeColor shadow-sm fw-normal px-3 py-2 rounded-pill">
+                                        <i class="bi bi-tag-fill me-1"></i> @badgeText
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="mb-2 d-flex justify-content-between align-items-center">
+                                    <small class="text-primary text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">
+                                        @(item.CategoryName ?? "Gayrimenkul")
+                                    </small>
+                                    <small class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1"></i> @item.Created.ToString("dd.MM.yyyy")
+                                    </small>
+                                </div>
+
+                                <h5 class="card-title fw-bold text-dark mb-3 lh-base" title="@item.Title">
+                                    @item.Title
+                                </h5>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
+
+<style>
+    /* Kartın genel geçiş efektleri */
+    .property-card {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        background: #fff;
+    }
+
+        /* Kart hover durumu: Hafif yükselme ve belirgin gölge */
+        .property-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+        }
+
+        /* Görsel zoom efekti */
+        .property-card img {
+            transition: transform 0.8s ease;
+        }
+
+        .property-card:hover img {
+            transform: scale(1.1);
+        }
+
+    /* Görsellerin kart dışına taşmasını engelleme */
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    /* Breadcrumb ve küçük yazılar için ek stil */
+    .fw-bolder {
+        letter-spacing: -0.5px;
+    }
+</style>

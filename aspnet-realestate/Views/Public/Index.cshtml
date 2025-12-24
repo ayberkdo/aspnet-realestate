@@ -1,54 +1,119 @@
-﻿@{
-    ViewData["Title"] = "Anasayfa";
+﻿@model List<PropertyViewModel>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Tüm İlanlar";
 }
 
-<!-- Hero -->
-<section class="relative w-full mt-8 rounded-3xl overflow-hidden shadow-2xl">
-    <!-- Background Image -->
-    <div class="absolute inset-0 bg-cover bg-center"
-         style="background-image: url('https://i.pinimg.com/1200x/9d/fc/61/9dfc61258cd6884a5006a8381f2554df.jpg');">
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold display-5 mb-2">Emlak Listesi</h2>
+            <p class="text-muted fs-5">Hayalinizdeki emlağı geniş portföyümüzde keşfedin.</p>
+            <div class="mx-auto bg-primary rounded-pill" style="width: 60px; height: 4px;"></div>
+        </div>
     </div>
 
-    <!-- Overlay -->
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="card border-0 rounded-4 p-5 d-inline-block shadow-sm bg-light">
+                <i class="bi bi-search display-1 text-secondary opacity-25 mb-3"></i>
+                <h3 class="fw-bold text-secondary">Herhangi bir ilan bulunamadı</h3>
+                <p class="text-muted mb-4">Aradığınız kriterlere uygun kayıt mevcut değil.</p>
+                <a href="/" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
+                    Anasayfaya Dön
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var item in Model)
+            {
+                // --- 🖼️ RESİM SEÇİM MANTIĞI ---
+                // Öncelik: CoverImage -> CoverImageUrl -> İlk Galeri Resmi -> Default Görsel
+                string finalImage = "/uploads/properties/default-house.jpg";
 
-    <!-- Content -->
-    <div class="relative z-10 text-center text-white px-6 py-24 sm:py-32">
-        <h1 class="text-3xl sm:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-lg">
-            Hayalinizdeki Evi Bulun
-        </h1>
-        <p class="text-base sm:text-lg text-gray-200 mb-10 max-w-2xl mx-auto">
-            Evinizi, ofisinizi ya da yatırım fırsatınızı birkaç adımda kolayca keşfedin.
-        </p>
+                if (!string.IsNullOrEmpty(item.CoverImage)) { finalImage = item.CoverImage; }
+                else if (!string.IsNullOrEmpty(item.CoverImageUrl)) { finalImage = item.CoverImageUrl; }
+                else if (item.Images != null && item.Images.Any(i => !string.IsNullOrEmpty(i.ImageUrl)))
+                {
+                    finalImage = item.Images.First(i => !string.IsNullOrEmpty(i.ImageUrl)).ImageUrl;
+                }
 
-        <!-- Search Form -->
-        <form class="bg-white/10 backdrop-blur-md rounded-xl p-6 max-w-4xl mx-auto flex flex-col sm:flex-row gap-4 items-center shadow-lg">
-            <!-- Mülk Türü -->
-            <select class="w-full sm:w-1/4 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <option>Mülk Türü</option>
-                <option>Daire</option>
-                <option>Villa</option>
-                <option>Arsa</option>
-                <option>Ofis</option>
-            </select>
+                // --- 🏷️ ETİKET RENGİ VE METNİ ---
+                bool isSale = item.Type?.ToLower() == "sale" || item.Type == "Satılık";
+                string badgeColor = isSale ? "bg-primary" : "bg-success";
+                string badgeText = isSale ? "Satılık" : "Kiralık";
 
-            <!-- Lokasyon -->
-            <input type="text" placeholder="Lokasyon Seç"
-                   class="w-full sm:w-1/4 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm property-card overflow-hidden rounded-4">
 
-            <!-- Fiyat Min -->
-            <input type="number" placeholder="Min Fiyat"
-                   class="w-full sm:w-1/5 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                        <a asp-controller="Public" asp-action="PropertyDetail" asp-route-slug="@item.Slug" class="text-decoration-none text-dark h-100 d-flex flex-column">
 
-            <!-- Fiyat Max -->
-            <input type="number" placeholder="Max Fiyat"
-                   class="w-full sm:w-1/5 px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                            <div class="position-relative overflow-hidden">
+                                <img src="@finalImage" class="card-img-top object-fit-cover" alt="@item.Title" style="height: 260px; width: 100%;">
 
-            <!-- Search Button -->
-            <button type="submit"
-                    class="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition shadow-md">
-                Ara
-            </button>
-        </form>
-    </div>
-</section>
+                                <div class="position-absolute top-0 start-0 m-3">
+                                    <span class="badge @badgeColor shadow-sm fw-normal px-3 py-2 rounded-pill">
+                                        <i class="bi bi-tag-fill me-1"></i> @badgeText
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="mb-2 d-flex justify-content-between align-items-center">
+                                    <small class="text-primary text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">
+                                        @(item.CategoryName ?? "Gayrimenkul")
+                                    </small>
+                                    <small class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1"></i> @item.Created.ToString("dd.MM.yyyy")
+                                    </small>
+                                </div>
+
+                                <h5 class="card-title fw-bold text-dark mb-3 lh-base" title="@item.Title">
+                                    @item.Title
+                                </h5>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    /* Kartın genel geçiş efektleri */
+    .property-card {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        background: #fff;
+    }
+
+        /* Kart hover durumu: Hafif yükselme ve belirgin gölge */
+        .property-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+        }
+
+        /* Görsel zoom efekti */
+        .property-card img {
+            transition: transform 0.8s ease;
+        }
+
+        .property-card:hover img {
+            transform: scale(1.1);
+        }
+
+    /* Görsellerin kart dışına taşmasını engelleme */
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    /* Breadcrumb ve küçük yazılar için ek stil */
+    .fw-bolder {
+        letter-spacing: -0.5px;
+    }
+</style>

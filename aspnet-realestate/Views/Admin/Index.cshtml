@@ -4,114 +4,179 @@
 }
 @model DashboardViewModel
 
-<div class="flex flex-col gap-y-4">
+<div class="flex flex-col gap-y-6">
 
-    <!--Başlık -->
     <div class="container">
         <div class="row">
             <h1 class="text-2xl font-bold tracking-tight">Gösterge Paneli</h1>
         </div>
     </div>
 
-    <!-- Card Bölümü -->
     <div class="container">
         <div class="row g-3">
             <div class="col-6 col-md-4">
-                <div class="card shadow-sm border border-neutral-100 h-100">
-                    <div class="card-body py-3">
-                        <h6 class="card-title fw-semibold text-secondary">Toplam İlanlar</h6>
-                        <p class="card-text fs-4 fw-bold mb-0">@Model.TotalProperties</p>
+                <div class="card shadow-sm border-0 h-100 bg-white rounded-4">
+                    <div class="card-body py-4">
+                        <h6 class="card-title fw-semibold text-muted small text-uppercase">Toplam İlanlar</h6>
+                        <p class="card-text fs-2 fw-bold mb-0 text-dark">@Model.TotalProperties</p>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-md-4">
-                <div class="card shadow-sm border border-neutral-100 h-100">
-                    <div class="card-body py-3">
-                        <h6 class="card-title fw-semibold text-secondary">Aktif İlanlar</h6>
-                        <p class="card-text fs-4 fw-bold mb-0">@Model.ActiveProperties</p>
+                <div class="card shadow-sm border-0 h-100 bg-white rounded-4">
+                    <div class="card-body py-4">
+                        <h6 class="card-title fw-semibold text-muted small text-uppercase">Aktif İlanlar</h6>
+                        <p class="card-text fs-2 fw-bold mb-0 text-success">@Model.ActiveProperties</p>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-md-4">
-                <div class="card shadow-sm border border-neutral-100 h-100">
-                    <div class="card-body py-3">
-                        <h6 class="card-title fw-semibold text-secondary">Toplam Kullanıcılar</h6>
-                        <p class="card-text fs-4 fw-bold mb-0">@Model.TotalUsers</p>
+                <div class="card shadow-sm border-0 h-100 bg-white rounded-4">
+                    <div class="card-body py-4">
+                        <h6 class="card-title fw-semibold text-muted small text-uppercase">Toplam Kullanıcılar</h6>
+                        <p class="card-text fs-2 fw-bold mb-0 text-primary">@Model.TotalUsers</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Hızlı İşlemler -->
     <div class="container">
-        <div class="card shadow-sm p-4 rounded-3">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0 fw-semibold text-secondary flex items-center gap-2">
-                    Hızlı İşlemler
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center">
+                    <span class="p-2 bg-primary-subtle rounded-circle me-2">
+                        <i class="bi bi-activity text-primary"></i>
+                    </span>
+                    Yapılan İşlemler (Canlı)
                 </h5>
             </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush" id="activityLog">
+                    <li class="list-group-item text-center py-4 text-muted border-0" id="noActivity">
+                        <i class="bi bi-info-circle me-2"></i>Henüz yeni bir işlem yapılmadı.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
+    <div class="container mb-4">
+        <div class="card shadow-sm p-4 border-0 rounded-4">
+            <h5 class="card-title mb-4 fw-bold text-dark">Hızlı İşlemler</h5>
             <div class="row g-3">
-                <!-- İlan Ekle -->
                 <div class="col-6 col-md-3">
                     <a asp-controller="Admin" asp-action="AddProperty"
-                       class="d-flex flex-column align-items-center justify-content-center p-4 rounded-3 bg-primary text-white transition transform hover:-translate-y-1 hover:shadow-lg hover:bg-blue-600 duration-200 text-center">
+                       class="d-flex flex-column align-items-center justify-content-center p-4 rounded-4 bg-primary text-white text-decoration-none transition-all hover-scale">
                         <div class="bg-white/20 p-3 rounded-circle mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-house-add" viewBox="0 0 16 16">
-                                <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h4a.5.5 0 1 0 0-1h-4a.5.5 0 0 1-.5-.5V7.207l5-5 6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293z" />
-                                <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0m-3.5-2a.5.5 0 0 0-.5.5v1h-1a.5.5 0 0 0 0 1h1v1a.5.5 0 1 0 1 0v-1h1a.5.5 0 1 0 0-1h-1v-1a.5.5 0 0 0-.5-.5" />
-                            </svg>
+                            <i class="bi bi-house-add fs-3"></i>
                         </div>
                         <h6 class="fw-semibold mb-1">İlan Ekle</h6>
-                        <small class="text-white/70">Yeni bir ilan oluştur</small>
                     </a>
                 </div>
-
-                <!-- Kategori Ekle -->
                 <div class="col-6 col-md-3">
                     <a asp-controller="Admin" asp-action="AddCategory"
-                       class="d-flex flex-column align-items-center justify-content-center p-4 rounded-3 bg-success text-white transition transform hover:-translate-y-1 hover:shadow-lg hover:bg-green-600 duration-200 text-center">
+                       class="d-flex flex-column align-items-center justify-content-center p-4 rounded-4 bg-success text-white text-decoration-none transition-all hover-scale">
                         <div class="bg-white/20 p-3 rounded-circle mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-tag-fill" viewBox="0 0 16 16">
-                                <path d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
-                            </svg>
+                            <i class="bi bi-tag fs-3"></i>
                         </div>
                         <h6 class="fw-semibold mb-1">Kategori Ekle</h6>
-                        <small class="text-white/70">Yeni kategori oluştur</small>
-                    </a>
-                </div>
-
-                <!-- Kullanıcı Ekle -->
-                <div class="col-6 col-md-3">
-                    <a asp-controller="Admin" asp-action="AddUser"
-                       class="d-flex flex-column align-items-center justify-content-center p-4 rounded-3 bg-warning text-white transition transform hover:-translate-y-1 hover:shadow-lg hover:bg-yellow-500 duration-200 text-center">
-                        <div class="bg-white/20 p-3 rounded-circle mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
-                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4" />
-                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
-                            </svg>
-                        </div>
-                        <h6 class="fw-semibold mb-1">Kullanıcı Ekle</h6>
-                        <small class="text-white/70">Yeni kullanıcı kaydı yap</small>
-                    </a>
-                </div>
-
-                <!-- Ayarlar -->
-                <div class="col-6 col-md-3">
-                    <a asp-controller="Admin" asp-action="Settings"
-                       class="d-flex flex-column align-items-center justify-content-center p-4 rounded-3 bg-secondary text-white transition transform hover:-translate-y-1 hover:shadow-lg hover:bg-gray-700 duration-200 text-center">
-                        <div class="bg-white/20 p-3 rounded-circle mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
-                                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
-                            </svg>
-                        </div>
-                        <h6 class="fw-semibold mb-1">Ayarlar</h6>
-                        <small class="text-white/70">Site ayarlarını yönet</small>
                     </a>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
+
+<style>
+    .hover-scale {
+        transition: transform 0.2s ease;
+    }
+
+        .hover-scale:hover {
+            transform: translateY(-5px);
+        }
+
+    /* --- Animasyon Stilleri --- */
+    .activity-item {
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        transform: translateY(-20px);
+        background-color: #f0f7ff;
+    }
+
+        /* Giriş Animasyonu (Fade-In) */
+        .activity-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Çıkış Animasyonu (Fade-Out ve Daralma) */
+        .activity-item.fade-out {
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+            margin-top: -55px; /* Eleman silinirken alttakilerin kayması için */
+            z-index: -1;
+        }
+</style>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/general-hub")
+            .build();
+
+        connection.on("ReceiveAdminNotification", function (message) {
+            const activityLog = document.getElementById("activityLog");
+            const noActivity = document.getElementById("noActivity");
+
+            // 1. "Henüz işlem yok" yazısını gizle
+            if (noActivity) {
+                noActivity.style.display = 'none';
+            }
+
+            // 2. Yeni liste elemanı oluştur
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center py-3 activity-item border-start border-primary border-4";
+
+            const now = new Date();
+            const timeStr = now.getHours() + ":" + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+
+            li.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary rounded-circle p-2 me-3" style="width: 10px; height: 10px;"></div>
+                    <span class="fw-bold text-dark">${message}</span>
+                </div>
+                <small class="text-muted fw-medium">${timeStr}</small>
+            `;
+
+            // 3. Listenin başına ekle
+            activityLog.insertBefore(li, activityLog.firstChild);
+
+            // 4. Fade-In Başlat
+            setTimeout(() => {
+                li.classList.add('show');
+            }, 50);
+
+            // 5. 2 Saniye Bekle ve Fade-Out Yaparak Kaldır
+            setTimeout(() => {
+                li.classList.add('fade-out');
+
+                // Görsel animasyon tamamlanınca DOM'dan temizle
+                setTimeout(() => {
+                    li.remove();
+
+                    // Eğer listede hiç eleman kalmadıysa "Henüz işlem yok"u geri getir
+                    if (activityLog.children.length === 0 ||
+                       (activityLog.children.length === 1 && activityLog.children[0].id === "noActivity")) {
+                        if (noActivity) noActivity.style.display = 'block';
+                    }
+                }, 600); // CSS transition süresi ile uyumlu
+
+            }, 2000); // Ekranda kalma süresi
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+    </script>
+}

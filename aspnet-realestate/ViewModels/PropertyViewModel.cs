@@ -14,6 +14,8 @@ namespace aspnet_realestate.ViewModels
         [Required(ErrorMessage = "Satış türü seçilmelidir.")]
         public string Type { get; set; } = "sale"; // sale / rent
 
+        public string Slug { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Kategori seçilmelidir.")]
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
@@ -56,7 +58,7 @@ namespace aspnet_realestate.ViewModels
         public List<PropertyImageViewModel> Images { get; set; } = new();
 
         public string Status { get; set; } = "approval";
-        public int? ApprovalUserId { get; set; }
+        public string? ApprovalUserId { get; set; }
 
 
         public string? SeoTitle { get; set; }

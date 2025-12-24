@@ -3,10 +3,12 @@ using aspnet_realestate.Repositories;
 using aspnet_realestate.ViewModels;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
+using DosyaYonetim.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity; // Identity kütüphanesi eklendi
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -27,6 +29,7 @@ namespace aspnet_realestate.Controllers
         private readonly MessageRepository _messageRepository;
         private readonly IMapper _mapper;
         private readonly INotyfService _notyf;
+        private readonly IHubContext<GeneralHub> _hubContext;
 
         public AdminController(
             UserManager<AppUser> userManager, // UserRepository yerine UserManager enjekte edildi
@@ -38,7 +41,8 @@ namespace aspnet_realestate.Controllers
             SettingRepository settingRepository,
             CategoryFieldsRepository categoryFieldsRepository,
             PropertyRepository propertyRepository,
-            MessageRepository messageRepository)
+            MessageRepository messageRepository,
+            IHubContext<GeneralHub> hubContext)
         {
             _userManager = userManager;
             _amenitiesGroupRepository = amenitiesGroupRepository;
@@ -50,6 +54,7 @@ namespace aspnet_realestate.Controllers
             _messageRepository = messageRepository;
             _mapper = mapper;
             _notyf = notyf;
+            _hubContext = hubContext;
         }
 
         // Helper: Identity'den giriş yapan kullanıcının string ID'sini alır
@@ -62,7 +67,7 @@ namespace aspnet_realestate.Controllers
         public async Task<IActionResult> Index()
         {
             var totalProperties = await _propertyRepository.CountAsync();
-            var activeProperties = await _propertyRepository.CountAsync(p => p.Status == "published");
+            var activeProperties = await _propertyRepository.CountAsync(p => p.IsActive);
 
             // Kullanıcı sayısı Identity üzerinden çekiliyor
             var totalUsers = await _userManager.Users.CountAsync();
@@ -279,6 +284,7 @@ namespace aspnet_realestate.Controllers
             }
 
             _notyf.Success("İlan başarıyla eklendi!");
+            await _hubContext.Clients.All.SendAsync("ReceiveAdminNotification", "Yeni İlan Eklendi: " + model.Title);
             return RedirectToAction("Properties");
         }
 
@@ -561,6 +567,7 @@ namespace aspnet_realestate.Controllers
             }
 
             _notyf.Success("İlan başarıyla güncellendi!");
+            await _hubContext.Clients.All.SendAsync("ReceiveAdminNotification", "İlan Güncellendi: " + model.Title);
             return RedirectToAction("Properties");
         }
 
@@ -617,10 +624,9 @@ namespace aspnet_realestate.Controllers
             }
 
             _notyf.Success("İlan başarıyla silindi.");
+            await _hubContext.Clients.All.SendAsync("ReceiveAdminNotification", "İlan Silindi: " + model.Title);
             return RedirectToAction("Properties");
         }
-
-
 
         [HttpGet("admin/property/get-category-fields/{categoryId}")]
         public async Task<IActionResult> GetCategoryFieldsJson(int categoryId)
@@ -732,6 +738,7 @@ namespace aspnet_realestate.Controllers
 
             await _categoryRepository.AddAsync(category);
             _notyf.Success("Harika! " + category.Name + " başarıyla eklendi.");
+            await _hubContext.Clients.All.SendAsync("ReceiveAdminNotification", "Kategori eklendi: " + model.Name);
             return RedirectToAction("Categories");
         }
 
@@ -821,6 +828,7 @@ namespace aspnet_realestate.Controllers
             await _categoryRepository.UpdateAsync(category);
 
             _notyf.Success("Kategori " + category.Name + " başarıyla güncellendi.");
+            await _hubContext.Clients.All.SendAsync("ReceiveAdminNotification", "Kategori düzenlendi: " + model.Name);
             return RedirectToAction("Categories");
         }
 
@@ -846,6 +854,7 @@ namespace aspnet_realestate.Controllers
             }
             await _categoryRepository.DeleteAsync(id); // id parametresi kullanılmalı
             _notyf.Success("Harika! " + category.Name + " başarıyla silindi.");
+            await _hubContext.Clients.All.SendAsync("ReceiveAdminNotification", "Kategori silindi: " + model.Name);
             return RedirectToAction("Categories");
         }
 
@@ -1490,7 +1499,6 @@ namespace aspnet_realestate.Controllers
         [HttpGet("admin/users")]
         public async Task<IActionResult> Users(string? search)
         {
-            // Identity'den tüm kullanıcıları IQueryable olarak alıyoruz
             var query = _userManager.Users;
 
             if (!string.IsNullOrEmpty(search))
@@ -1506,7 +1514,23 @@ namespace aspnet_realestate.Controllers
             }
 
             var users = await query.ToListAsync();
-            var model = _mapper.Map<List<UserViewModel>>(users);
+
+            // 2. ViewModel listesini hazırla
+            var model = new List<UserViewModel>();
+
+            foreach (var user in users)
+            {
+                // AutoMapper ile temel bilgileri dönüştür
+                var userVm = _mapper.Map<UserViewModel>(user);
+
+                // 3. Kullanıcının rollerini Identity üzerinden çek
+                var roles = await _userManager.GetRolesAsync(user);
+
+                // İlk rolü al (genelde tek rol olur), eğer rol atanmamışsa "User" yaz
+                userVm.Role = roles.FirstOrDefault() ?? "User";
+
+                model.Add(userVm);
+            }
 
             ViewBag.Search = search;
             return View(model);
@@ -1675,12 +1699,12 @@ namespace aspnet_realestate.Controllers
         [HttpGet("admin/settings")]
         public async Task<IActionResult> Settings()
         {
-            var setting = await _settingRepository.GetByIdAsync(1);
+            var setting = await _settingRepository.GetByIdAsync(2);
 
             if (setting == null)
             {
                 _notyf.Warning("Sistem ayarları veritabanında bulunamadı.");
-                return NotFound();
+                return View();
             }
 
             var model = _mapper.Map<SettingViewModel>(setting);
@@ -1688,7 +1712,6 @@ namespace aspnet_realestate.Controllers
         }
 
         [HttpPost("admin/settings")]
-        [ValidateAntiForgeryToken] // Güvenlik için eklendi
         public async Task<IActionResult> Settings(SettingViewModel model)
         {
             if (!ModelState.IsValid)
@@ -1696,12 +1719,14 @@ namespace aspnet_realestate.Controllers
                 return View(model);
             }
 
-            var setting = await _settingRepository.GetByIdAsync(1);
+            var setting = await _settingRepository.GetByIdAsync(2);
             if (setting == null)
             {
-                return NotFound();
+                _notyf.Warning("Sistem ayarları veritabanında bulunamadı.");
+                return View();
             }
 
+            setting.Id = 1;
             setting.SiteTitle = model.SiteTitle;
             setting.SiteDescription = model.SiteDescription;
             setting.SiteKeywords = model.SiteKeywords;

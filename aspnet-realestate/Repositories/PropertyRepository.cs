@@ -9,7 +9,30 @@ namespace aspnet_realestate.Repositories
         public PropertyRepository(AppDbContext context) : base(context, context.Set<Property>())
         {
         }
+        public async Task<PropertyDestination> GetOrCreateDestinationAsync(string country, string city, string district)
+        {
+            // 1. Önce veritabanında bu konum var mı diye kontrol et
+            var existingDestination = await _context.PropertyDestinations
+                .FirstOrDefaultAsync(x => x.Country == country && x.City == city && x.District == district);
 
+            if (existingDestination != null)
+            {
+                return existingDestination;
+            }
+
+            // 2. Yoksa yeni bir tane oluştur
+            var newDestination = new PropertyDestination
+            {
+                Country = country,
+                City = city,
+                District = district
+            };
+
+            _context.PropertyDestinations.Add(newDestination);
+            await _context.SaveChangesAsync();
+
+            return newDestination;
+        }
         /// Tüm ilanları kategori, konum ve görsellerle birlikte getirir.
         public async Task<List<Property>> GetAllWithIncludesAsync()
         {

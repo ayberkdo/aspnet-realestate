@@ -1,6 +1,64 @@
-﻿@{
+﻿@model List<aspnet_realestate.ViewModels.PropertyViewModel>
+@{
     Layout = "_UserLayout";
     ViewData["Title"] = "İlanlarım";
 }
 
-<div>İlanlarım</div>
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold">İlanlarım</h5>
+        <a asp-action="AddProperty" class="btn btn-primary btn-sm rounded-pill px-3">Yeni İlan Ekle</a>
+    </div>
+    <div class="table-responsive p-3">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Görsel</th>
+                    <th>Başlık</th>
+                    <th>Kategori</th>
+                    <th>Tür</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><img src="@item.CoverImageUrl" style="width:50px; height:50px;" class="rounded object-fit-cover"></td>
+                        <td>@item.Title</td>
+                        <td>@item.CategoryName</td>
+                        <td>
+                            @if(item.Type == "sale")
+                            {
+                                <span>Satılık</span>
+                            } else {
+                                <span>Satılık</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Status == "approval")
+                            {
+                                <span class="badge bg-warning text-dark">Onay Bekliyor</span>
+                            }
+                            else if (item.Status == "accepted")
+                            {
+
+                                <span class="badge bg-success">Yayında</span>
+                            }
+                            else
+                            {
+
+                                <span class="badge bg-danger">Reddedildi</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="EditProperty" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="DeleteProperty" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

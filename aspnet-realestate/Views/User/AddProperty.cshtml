@@ -1,291 +1,264 @@
-﻿@{
-    Layout = "_AdminLayout";
+﻿@model PropertyViewModel
+@{
+    Layout = "_UserLayout";
+    ViewData["Title"] = "Yeni İlan Ekle";
 }
-@model PropertyViewModel
 
-<div class="flex flex-col gap-y-4">
-    <div class="container">
-        <form asp-controller="Admin" asp-action="AddProperty" method="post" id="propertyForm">
-            <div class="row">
-                <div class="col-8">
-                    <!-- TEMEL BİLGİ -->
-                    <div class="card w-full mb-4">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <h5 class="card-title text-2xl font-bold tracking-tight">Temel Bilgi</h5>
+<div class="container py-4">
+    <form asp-controller="User" asp-action="AddProperty" method="post" id="propertyForm">
+        <div class="row g-4">
+            <div class="col-lg-8">
 
-                            <div class="mb-4">
-                                <label asp-for="Title" class="form-label">Başlık</label>
-                                <input asp-for="Title" class="form-control bg-neutral-50" placeholder="Emlak başlığını girin" />
-                                <span asp-validation-for="Title" class="text-danger"></span>
-                            </div>
-
-                            <div class="mb-4">
-                                <label asp-for="Description" class="form-label">Açıklama</label>
-                                <textarea asp-for="Description" class="form-control bg-neutral-50" placeholder="Emlak açıklamasını girin"></textarea>
-                                <span asp-validation-for="Description" class="text-danger"></span>
-                            </div>
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-4"><i class="bi bi-info-circle me-2 text-primary"></i>Temel Bilgi</h5>
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-semibold">İlan Başlığı</label>
+                            <input asp-for="Title" class="form-control bg-light border-0" placeholder="Örn: Modern Deniz Manzaralı Villa" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-semibold">Açıklama</label>
+                            <textarea asp-for="Description" class="form-control bg-light border-0" rows="5" placeholder="Emlak hakkında detaylı bilgi verin..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- TÜR BELİRLE -->
-                    <div class="card w-full mb-4">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <h5 class="card-title text-2xl font-bold tracking-tight">Tür Belirle</h5>
-
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-3"><i class="bi bi-arrow-left-right me-2 text-primary"></i>Tür Belirle</h5>
+                        <div class="d-flex gap-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="Type" id="typeSale" value="sale" checked>
-                                <label class="form-check-label" for="typeSale">Satılık</label>
+                                <label class="form-check-label fw-medium" for="typeSale">Satılık</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="Type" id="typeRent" value="rent">
-                                <label class="form-check-label" for="typeRent">Kiralık</label>
+                                <label class="form-check-label fw-medium" for="typeRent">Kiralık</label>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- KATEGORİ BELİRLE -->
-                    <div class="card w-full mb-4">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <h5 class="card-title text-2xl font-bold tracking-tight">Kategori Belirle</h5>
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-3"><i class="bi bi-grid me-2 text-primary"></i>Kategori Belirle</h5>
+                        <div class="row g-2">
                             @foreach (var cat in (List<aspnet_realestate.Models.Categories>)ViewBag.Categories)
                             {
-                                <div class="form-check">
-                                    <input class="form-check-input category-radio" type="radio" name="CategoryId" id="cat_@cat.Id" value="@cat.Id">
-                                    <label class="form-check-label" for="cat_@cat.Id">@cat.Name</label>
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- KATEGORİYE ÖZEL ALANLAR -->
-                    <div class="card w-full mb-4" id="categoryFieldsCard" style="display:none;">
-                        <div class="card-body">
-                            <h5>Kategoriye Özel Alanlar</h5>
-                            <div id="dynamicCategoryFields"></div>
-                        </div>
-                    </div>
-
-                    <!-- 🏠 OLANAKLAR -->
-                    <div class="card w-full mb-4">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <h5 class="card-title text-2xl font-bold tracking-tight">Olanaklar</h5>
-
-                            @if (Model.AmenitiesGroups != null && Model.AmenitiesGroups.Any())
-                            {
-                                foreach (var group in Model.AmenitiesGroups)
-                                {
-                                    <div class="mb-3 border rounded-lg p-3 bg-light">
-                                        <h6 class="fw-bold mb-2">@group.Name</h6>
-
-                                        <div class="row">
-                                            @foreach (var amenity in group.Amenities)
-                                            {
-                                                <div class="col-md-4">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input"
-                                                               type="checkbox"
-                                                               name="SelectedAmenities"
-                                                               value="@amenity.Id"
-                                                               id="amenity_@amenity.Id"
-                                                               @(Model.SelectedAmenities != null && Model.SelectedAmenities.Contains(amenity.Id) ? "checked" : "") />
-                                                        <label class="form-check-label" for="amenity_@amenity.Id">
-                                                            @if (!string.IsNullOrEmpty(amenity.ImageUrl))
-                                                            {
-                                                                <img src="@amenity.ImageUrl" alt="@amenity.Name" style="width:18px;height:18px;margin-right:6px;" />
-                                                            }
-                                                            @amenity.Name
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            }
-                                        </div>
+                                <div class="col-md-4 col-6">
+                                    <div class="form-check p-2 border rounded-3 bg-light">
+                                        <input class="form-check-input ms-0 me-2 category-radio" type="radio" name="CategoryId" id="cat_@cat.Id" value="@cat.Id">
+                                        <label class="form-check-label small fw-semibold" for="cat_@cat.Id">@cat.Name</label>
                                     </div>
-                                }
+                                </div>
                             }
-                            else
+                        </div>
+                        <span asp-validation-for="CategoryId" class="text-danger small mt-2 d-block"></span>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 mb-4" id="categoryFieldsCard" style="display:none;">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-3 text-primary"><i class="bi bi-plus-square me-2"></i>Kategoriye Özel Özellikler</h5>
+                        <div id="dynamicCategoryFields" class="row row-cols-1 row-cols-md-2 g-3"></div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-4"><i class="bi bi-stars me-2 text-primary"></i>Olanaklar</h5>
+                        @if (Model.AmenitiesGroups != null && Model.AmenitiesGroups.Any())
+                        {
+                            foreach (var group in Model.AmenitiesGroups)
                             {
-                                <p class="text-muted">Henüz bir olanak grubu tanımlı değil.</p>
+                                <div class="mb-4">
+                                    <h6 class="fw-bold text-muted small text-uppercase border-bottom pb-1 mb-3">@group.Name</h6>
+                                    <div class="row g-2">
+                                        @foreach (var amenity in group.Amenities)
+                                        {
+                                            <div class="col-md-4 col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="SelectedAmenities" value="@amenity.Id" id="amenity_@amenity.Id">
+                                                    <label class="form-check-label small" for="amenity_@amenity.Id">@amenity.Name</label>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-4"><i class="bi bi-cash-stack me-2 text-primary"></i>Fiyat Bilgisi</h5>
+
+                        <div id="saleFields">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Satış Fiyatı</label>
+                                <input asp-for="Price" class="form-control bg-light border-0" placeholder="0.00" />
+                            </div>
+                        </div>
+
+                        <div id="rentFields" style="display:none;" class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Günlük Kira</label>
+                                <input asp-for="DailyPrice" class="form-control bg-light border-0" placeholder="0.00" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Haftalık Kira</label>
+                                <input asp-for="WeeklyPrice" class="form-control bg-light border-0" placeholder="0.00" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Aylık Kira</label>
+                                <input asp-for="MonthlyPrice" class="form-control bg-light border-0" placeholder="0.00" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-4"><i class="bi bi-geo-alt me-2 text-primary"></i>Konum Bilgileri</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Ülke</label>
+                                <select asp-for="Country" id="countrySelect" class="form-select bg-light border-0">
+                                    <option value="">Ülke seçin</option>
+                                    <option value="Türkiye">Türkiye</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Şehir</label>
+                                <select asp-for="City" id="citySelect" class="form-select bg-light border-0" disabled>
+                                    <option value="">Şehir seçin</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">İlçe</label>
+                                <select asp-for="District" id="districtSelect" class="form-select bg-light border-0" disabled>
+                                    <option value="">İlçe seçin</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Tam Adres</label>
+                            <textarea asp-for="Address" class="form-control bg-light border-0" placeholder="Cadde, sokak, no..."></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold">Haritada İşaretle</label>
+                            <div id="map" style="height: 350px; width: 100%; border-radius: 12px;" class="border"></div>
+                            <input type="hidden" asp-for="MapLat" id="mapLat" />
+                            <input type="hidden" asp-for="MapLng" id="mapLng" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-4"><i class="bi bi-images me-2 text-primary"></i>Görseller</h5>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Kapak Fotoğrafı (URL)</label>
+                            <input asp-for="CoverImageUrl" class="form-control bg-light border-0" placeholder="https://..." />
+                        </div>
+                        <hr>
+                        <div class="row g-3">
+                            @for (int i = 0; i < 4; i++)
+                            {
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Fotoğraf @(i + 1)</label>
+                                    <input name="Images[@i].ImageUrl" class="form-control bg-light border-0" placeholder="Görsel URL'si" />
+                                </div>
                             }
                         </div>
                     </div>
+                </div>
 
-                    <!-- FİYAT -->
-                    <div class="card w-full mb-4">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <h5 class="card-title text-2xl font-bold tracking-tight">Fiyat</h5>
+            </div>
 
-                            <div id="saleFields">
-                                <div class="mb-3">
-                                    <label>Satış Fiyatı</label>
-                                    <input asp-for="Price" class="form-control" />
-                                </div>
-                            </div>
-
-                            <div id="rentFields" style="display:none;">
-                                <div class="mb-3">
-                                    <label>Günlük Kira</label>
-                                    <input asp-for="DailyPrice" class="form-control" />
-                                </div>
-                                <div class="mb-3">
-                                    <label>Haftalık Kira</label>
-                                    <input asp-for="WeeklyPrice" class="form-control" />
-                                </div>
-                                <div class="mb-3">
-                                    <label>Aylık Kira</label>
-                                    <input asp-for="MonthlyPrice" class="form-control" />
-                                </div>
-                            </div>
-
-
-                            <div class="mb-3">
-                                <label>Para Birimi</label>
-                                <select asp-for="Currency" class="form-select">
-                                    <option value="TRY">₺ TL</option>
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 20px; z-index: 10;">
+                    <div class="card shadow-sm border-0 rounded-4 mb-4">
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Para Birimi</label>
+                                <select asp-for="Currency" class="form-select bg-light border-0 py-2">
+                                    <option value="TRY">₺ TRY</option>
                                     <option value="USD">$ USD</option>
                                     <option value="EUR">€ EUR</option>
                                 </select>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- ADRES -->
-                    <div class="card w-full mb-4">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <h5 class="card-title text-2xl font-bold tracking-tight">Adres Bilgileri</h5>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label>Ülke</label>
-                                <select asp-for="Country" id="countrySelect" class="form-control">
-                                    <option value="0">Ülke seçin</option>
-                                    <option value="Türkiye">Türkiye</option>
-                                </select>
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i>İlanı Onaya Gönder
+                            </button>
+                            <div class="mt-3 p-3 bg-light rounded-3">
+                                <small class="text-muted d-block"><i class="bi bi-shield-check me-1"></i> İlanınız gönderildikten sonra yönetici onayına sunulacaktır.</small>
                             </div>
-
-                            <div class="col-md-4">
-                                <label>Şehir</label>
-                                <select asp-for="City" id="citySelect" class="form-control" disabled>
-                                    <option value="0">Şehir seçin</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label>İlçe</label>
-                                <select asp-for="District" id="districtSelect" class="form-control" disabled>
-                                    <option value="0">İlçe seçin</option>
-                                </select>
-                            </div>
-                        </div>
-
-                            <div class="mb-3">
-                                <label>Adres</label>
-                                <textarea asp-for="Address" class="form-control"></textarea>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label>Konumu Belirle</label>
-                                    <div id="map" style="height: 300px; width: 100%; border-radius: 6px;"></div>
-                                </div>
-                                <div class="col-md-6 invisible">
-                                    <label>Map Latitude</label>
-                                    <input asp-for="MapLat" id="mapLat" class="form-control" />
-                                </div>
-                                <div class="col-md-6 invisible">
-                                    <label>Map Longitude</label>
-                                    <input asp-for="MapLng" id="mapLng" class="form-control" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- GÖRSELLER -->
-                    <div class="card w-full mb-4">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <h5 class="card-title text-2xl font-bold tracking-tight">Görseller</h5>
-
-                            <div class="mb-3">
-                                <label>Kapak Fotoğrafı</label>
-                                <input asp-for="CoverImageUrl" class="form-control" placeholder="Kapak fotoğrafı URL'si" />
-                            </div>
-
-                            @for (int i = 0; i < 4; i++)
-                            {
-                                <div class="mb-3">
-                                    <label>Fotoğraf @(i + 1)</label>
-                                    <input name="Images[@i].ImageUrl" class="form-control" placeholder="Fotoğraf URL'si" />
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🔹 SAĞ TARAF (KAYDET BUTONU) -->
-                <div class="col-4">
-                    <div class="card w-full">
-                        <div class="card-body flex flex-col gap-y-4">
-                            <input type="submit" class="btn btn-primary w-100 py-2" value="Kaydet" />
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script>
 
+    <script>
         $(document).ready(function () {
-            // 🏷 Tür seçimine göre fiyat alanlarını göster/gizle
+
+            // --- 1. TÜR SEÇİMİ (SATILIK/KİRALIK) ---
             $('input[name="Type"]').on('change', function () {
                 if ($(this).val() === 'rent') {
-                    $('#rentFields').show();
-                    $('#saleFields').hide();
+                    $('#rentFields').slideDown();
+                    $('#saleFields').slideUp();
                 } else {
-                    $('#saleFields').show();
-                    $('#rentFields').hide();
+                    $('#saleFields').slideDown();
+                    $('#rentFields').slideUp();
                 }
             });
 
+            // --- 2. DİNAMİK KATEGORİ ALANLARI (AJAX) ---
             $('.category-radio').on('change', function () {
                 const categoryId = $(this).val();
-
                 if (!categoryId) return;
 
                 $.ajax({
-                    url: `/admin/property/get-category-fields/${categoryId}`,
+                    url: `/user/property/get-category-fields/${categoryId}`,
                     type: 'GET',
                     success: function (response) {
                         if (response.success && response.fields.length > 0) {
                             let html = '';
                             response.fields.forEach((f, i) => {
                                 html += `
-                                    <div class="mb-3">
-                                        <label>${f.fieldName}</label>
-                                        <input type="hidden" name="CustomFields[${i}].FieldName" value="${f.fieldName}" />
-                                        <input type="text" class="form-control" name="CustomFields[${i}].Value" placeholder="${f.fieldName} girin" />
+                                    <div class="col">
+                                        <div class="mb-2">
+                                            <label class="form-label small fw-bold text-muted">${f.fieldName}</label>
+                                            <input type="hidden" name="CustomFields[${i}].FieldName" value="${f.fieldName}" />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="CustomFields[${i}].Value" placeholder="${f.fieldName} değerini girin" />
+                                        </div>
                                     </div>`;
                             });
                             $('#dynamicCategoryFields').html(html);
-                            $('#categoryFieldsCard').show();
+                            $('#categoryFieldsCard').fadeIn();
                         } else {
                             $('#dynamicCategoryFields').empty();
-                            $('#categoryFieldsCard').hide();
+                            $('#categoryFieldsCard').fadeOut();
                         }
                     },
                     error: function () {
-                        console.error('Kategori alanları alınamadı.');
-                        $('#dynamicCategoryFields').empty();
-                        $('#categoryFieldsCard').hide();
+                        $('#categoryFieldsCard').fadeOut();
                     }
                 });
             });
-
-     var data = [
+            const data = [
           {
             "il": "Adana",
             "plaka": 1,
@@ -1749,100 +1722,72 @@
           }
         ]
 
-        const countrySelect = document.getElementById("countrySelect");
-        const citySelect = document.getElementById("citySelect");
-        const districtSelect = document.getElementById("districtSelect");
+            const countrySelect = document.getElementById("countrySelect");
+            const citySelect = document.getElementById("citySelect");
+            const districtSelect = document.getElementById("districtSelect");
 
-        // Ülke seçilince
-        countrySelect.addEventListener("change", function () {
-            const selectedCountry = this.value;
-
-            // Şehir ve ilçe alanlarını sıfırla
-            citySelect.innerHTML = '<option value="">Şehir seçin</option>';
-            districtSelect.innerHTML = '<option value="">İlçe seçin</option>';
-            districtSelect.disabled = true;
-
-            if (selectedCountry === "Türkiye") {
-                citySelect.disabled = false;
-
-                // Şehirleri doldur
-                data.forEach(item => {
-                    const opt = document.createElement("option");
-                    opt.value = item.il;
-                    opt.textContent = item.il;
-                    citySelect.appendChild(opt);
-                });
-            } else {
-                citySelect.disabled = true;
-            }
-        });
-
-        // Şehir seçilince
-        citySelect.addEventListener("change", function () {
-            const selectedCity = this.value;
-            districtSelect.innerHTML = '<option value="">İlçe seçin</option>';
-
-            if (selectedCity) {
-                const cityData = data.find(item => item.il === selectedCity);
-                if (cityData) {
-                    cityData.ilceleri.forEach(district => {
-                        const opt = document.createElement("option");
-                        opt.value = district;
-                        opt.textContent = district;
-                        districtSelect.appendChild(opt);
-                    });
-                    districtSelect.disabled = false;
-                }
-            } else {
+            countrySelect.addEventListener("change", function () {
+                citySelect.innerHTML = '<option value="">Şehir seçin</option>';
+                districtSelect.innerHTML = '<option value="">İlçe seçin</option>';
                 districtSelect.disabled = true;
-            }
-        });
 
-            // 1. Koordinatları Modelden Al
-            const initialLat = parseFloat("@(Model.MapLat.HasValue? Model.MapLat.ToString().Replace(',', '.') : "41.0082")"); // Örn: İstanbul koordinatları
-            const initialLng = parseFloat("@(Model.MapLng.HasValue? Model.MapLng.ToString().Replace(',', '.') : "28.9784")");
-            const zoomLevel = 12;
+                if (this.value === "Türkiye") {
+                    citySelect.disabled = false;
+                    data.forEach(item => {
+                        const opt = document.createElement("option");
+                        opt.value = item.il;
+                        opt.textContent = item.il;
+                        citySelect.appendChild(opt);
+                    });
+                } else {
+                    citySelect.disabled = true;
+                }
+            });
 
-            // 2. Haritayı Başlat
-            // Map 'map' id'li div içinde oluşturulur
-            var map = L.map('map').setView([initialLat, initialLng], zoomLevel);
+            citySelect.addEventListener("change", function () {
+                const selectedCity = this.value;
+                districtSelect.innerHTML = '<option value="">İlçe seçin</option>';
+                if (selectedCity) {
+                    const cityData = data.find(item => item.il === selectedCity);
+                    if (cityData) {
+                        cityData.ilceleri.forEach(district => {
+                            const opt = document.createElement("option");
+                            opt.value = district;
+                            opt.textContent = district;
+                            districtSelect.appendChild(opt);
+                        });
+                        districtSelect.disabled = false;
+                    }
+                } else {
+                    districtSelect.disabled = true;
+                }
+            });
 
-            // Leaflet Tile Layer'ı ekle (Harita görünümü)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+            // --- 4. HARİTA (LEAFLET) ---
+            const initialLat = 41.0082; // İstanbul
+            const initialLng = 28.9784;
 
-            // 3. İşaretleyici (Marker) Ekle
-            // Harita üzerinde kullanıcının işaretleyeceği nokta
-            var marker = L.marker([initialLat, initialLng], {
-                draggable: true // Marker'ın sürüklenebilir olması
-            }).addTo(map);
+            var map = L.map('map').setView([initialLat, initialLng], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-            // 4. Marker Sürüklendiğinde veya Haritaya Tıklandığında Inputları Güncelle
+            var marker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map);
 
-            function updateInputs(lat, lng) {
-                // Input alanlarını ondalık değerlerle doldur (C# decimal formatına dikkat!)
+            function updateCoords(lat, lng) {
                 $('#mapLat').val(lat.toFixed(6));
                 $('#mapLng').val(lng.toFixed(6));
             }
 
-            // a) Marker Sürükleme Olayı
             marker.on('dragend', function (event) {
-                var newLatLng = marker.getLatLng();
-                updateInputs(newLatLng.lat, newLatLng.lng);
+                var pos = marker.getLatLng();
+                updateCoords(pos.lat, pos.lng);
             });
 
-            // b) Harita Tıklama Olayı (Yeni bir yere tıklandığında marker'ı oraya taşı)
             map.on('click', function (e) {
                 marker.setLatLng(e.latlng);
-                updateInputs(e.latlng.lat, e.latlng.lng);
+                updateCoords(e.latlng.lat, e.latlng.lng);
             });
 
-            // Sayfa yüklendiğinde mevcut değeri bir kez daha inputlara yaz
-            updateInputs(initialLat, initialLng);
+            updateCoords(initialLat, initialLng);
         });
-
-                
-    
-                </script>
+    </script>
 }

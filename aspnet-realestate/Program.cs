@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
+using DosyaYonetim.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,6 +66,8 @@ builder.Services.AddNotyf(config =>
     config.Position = NotyfPosition.BottomRight;
 });
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -87,5 +90,8 @@ app.MapControllerRoute(
     name: "public",
     pattern: "{action=Index}/{id?}",
     defaults: new { controller = "Public" });
+
+
+app.MapHub<GeneralHub>("/general-hub");
 
 app.Run();

@@ -69,12 +69,39 @@
         </header>
 
         <div class="flex flex-1">
-            <!-- Sidebar -->
             <aside id="sidebar"
-                   class="fixed top-16 inset-y-0 left-0 w-[260px] transform -translate-x-full transition-transform z-20">
-                <nav class="flex flex-col space-y-4 px-4">
+                   class="fixed top-16 inset-y-0 left-0 w-[260px] transform -translate-x-full transition-transform z-20 bg-white border-r border-neutral-200 shadow-sm">
+                <nav class="flex flex-col space-y-4 px-4 py-4">
 
-                    
+                    <div>
+                        <p class="px-2 py-2 text-black text-xs font-bold uppercase tracking-wider opacity-50">Genel</p>
+                        <a asp-controller="User" asp-action="Index"
+                           class="block px-2 py-2 rounded hover:bg-orange-50 text-neutral-700 hover:text-orange-800 transition-colors">
+                            Panel
+                        </a>
+                    </div>
+
+                    <div>
+                        <p class="px-2 py-2 text-black text-xs font-bold uppercase tracking-wider opacity-50">İlan Yönetimi</p>
+                        <a asp-controller="User" asp-action="Properties"
+                           class="block px-2 py-2 rounded hover:bg-orange-50 text-neutral-700 hover:text-orange-800 transition-colors">
+                            İlanlarım
+                        </a>
+                    </div>
+
+                    <div>
+                        <p class="px-2 py-2 text-black text-xs font-bold uppercase tracking-wider opacity-50">Hesap</p>
+                        <a asp-controller="User" asp-action="Settings"
+                           class="block px-2 py-2 rounded hover:bg-orange-50 text-neutral-700 hover:text-orange-800 transition-colors">
+                            <i class="bi bi-person-gear me-2"></i> Ayarlar
+                        </a>
+                        <hr class="my-2 border-neutral-100" />
+                        <a asp-controller="Public" asp-action="Logout"
+                           class="block px-2 py-2 rounded hover:bg-red-50 text-red-600 hover:text-red-800 transition-colors">
+                            <i class="bi bi-box-arrow-right me-2"></i> Güvenli Çıkış
+                        </a>
+                    </div>
+
                 </nav>
             </aside>
 
